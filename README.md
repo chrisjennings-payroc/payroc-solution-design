@@ -20,7 +20,7 @@ This repo is a **Claude Code plugin marketplace** containing one plugin, `payroc
    ```
 2. In Claude Code, add this marketplace and install the plugin:
    ```text
-   /plugin marketplace add <owner>/<repo>
+   /plugin marketplace add chrisjennings-payroc/payroc-solution-design
    /plugin install payroc-solution-design@payroc-sales-engineering
    ```
    From a local checkout: `/plugin marketplace add ./payroc-solution-design` (path to this folder).

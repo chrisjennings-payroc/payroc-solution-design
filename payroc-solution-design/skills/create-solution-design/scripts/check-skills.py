@@ -45,7 +45,7 @@ def detect_skills_dir():
         n = sum(1 for x in names if os.path.isdir(os.path.join(c, x)))
         if n > best_n:
             best, best_n = c, n
-    return best
+    return best, best_n, cands
 
 
 def blob_sha(path):
@@ -61,7 +61,20 @@ def main():
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
 
-    skills_dir = a.skills_dir or detect_skills_dir()
+    searched = []
+    if a.skills_dir:
+        skills_dir = a.skills_dir
+    else:
+        skills_dir, found, searched = detect_skills_dir()
+        if found == 0:
+            msg = ("No Payroc skills were found. Searched: %s. If you installed them with `npx skills add payroc/skills --agent claude-code`, "
+                   "run this from that project folder or pass --skills-dir DIR; otherwise install them first." % ", ".join(searched))
+            if a.json:
+                print(json.dumps({"result": "stale", "reason": "no-skills-found", "searched": searched, "message": msg}))
+            else:
+                print("NO SKILLS FOUND: " + msg)
+                print("RESULT: stale -> run: npx skills add payroc/skills --agent claude-code   (then re-run this check)")
+            return 1
     wanted = set()
     for sid, s in MAP["sections"].items():
         if not a.sections or sid in a.sections.split(","):

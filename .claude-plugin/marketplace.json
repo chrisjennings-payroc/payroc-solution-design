@@ -1,6 +1,8 @@
 {
   "name": "payroc-sales-engineering",
-  "owner": { "name": "Payroc Sales Engineering" },
+  "owner": {
+    "name": "Payroc Sales Engineering"
+  },
   "plugins": [
     {
       "name": "payroc-solution-design",
@@ -8,5 +10,6 @@
       "description": "Build partner Solution Designs (HTML + Markdown twin) from a guided interview, the integrator's docs.payroc.com plan, and Payroc + Worldnet documentation.",
       "version": "0.2.0"
     }
-  ]
+  ],
+  "description": "Claude Code plugins for Payroc Sales Engineering: Solution Design builder, Worldnet reference, integration-plan import and review tools."
 }

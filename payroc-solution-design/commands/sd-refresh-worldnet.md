@@ -1,6 +1,6 @@
 ---
 description: Check the age of the Worldnet docs snapshot (maintainers re-sync it from the plugin source repo)
-allowed-tools: Bash(python3:*), Read
+allowed-tools: Read
 ---
 
 Check how fresh the Worldnet documentation snapshot is.

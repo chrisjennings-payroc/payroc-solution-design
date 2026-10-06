@@ -1,7 +1,7 @@
 ---
 description: Pre-share review of a Solution Design (unresolved fields, HTML/MD sync, skills freshness, endpoint accuracy, secrets)
 argument-hint: <path to Partner-Solution-Design.html>
-allowed-tools: Bash(python3:*), Read, Glob, Grep, Skill
+allowed-tools: Read, Glob, Grep, Skill
 ---
 
 Review the Solution Design at: $ARGUMENTS

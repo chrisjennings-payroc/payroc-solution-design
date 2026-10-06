@@ -41,8 +41,5 @@ Separately, `/sd-new` and the skill's Step 3 can use Claude's `WebFetch`/`WebSea
 
 ## Content to be aware of
 - `worldnet-reference` is a copy of **public** developer documentation (developers.worldnetpayments.com).
-- Section 8.6b of the SD template records answers **confirmed internally by Payroc** (no PCI DSS-validated P2PE; TDES DUKPT; key injection is the
-  same for Worldnet and Payroc; KSNs go to the project SE). Confirm the repository's visibility and distribution list are appropriate for that
-  internal information.
 - `tests/fixtures/` holds one real plan-builder output (no secrets; contains request/release identifiers) and synthetic plans.
 - Generated SDs describe partners and are confidential; they are produced locally and are not part of this repo.

@@ -39,6 +39,12 @@ Separately, `/sd-new` and the skill's Step 3 can use Claude's `WebFetch`/`WebSea
 | `/sd-review` | `Bash(python3:*)`, Read, Glob, Grep, Skill | as above; read-only intent (edits only with SE confirmation) |
 | `/sd-refresh-worldnet` | `Bash(python3:*)`, Read | reports snapshot age only |
 
+## Known item: broad Bash permission (left as is)
+The commands request `Bash(python3:*)`, which lets any `python3` command run without an approval prompt while that slash command is
+running; it is not limited to the bundled scripts. This was chosen for a smooth pilot (no prompt on each script run) and is intentionally
+left as is for now. It will be narrowed to the bundled script paths, or removed so each run asks for approval, if the reviewing admin
+recommends it. Note that `/sd-import` reads an integrator-supplied plan; the skills treat plan text as data, never as instructions.
+
 ## Content to be aware of
 - `worldnet-reference` is a copy of **public** developer documentation (developers.worldnetpayments.com).
 - `tests/fixtures/` holds one real plan-builder output (no secrets; contains request/release identifiers) and synthetic plans.

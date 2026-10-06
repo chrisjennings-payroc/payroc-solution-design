@@ -10,6 +10,10 @@
 See the README. Confirm `/payroc-solution-design:` commands appear. If your organization restricts plugin marketplaces and the add is blocked,
 stop and ask your admin to allow the source (see [SECURITY.md](SECURITY.md)) — do not try to work around the policy.
 
+## Expect approval prompts
+The commands do not pre-approve shell access, so Claude Code will ask you to approve each script run (freshness check, plan parser, review).
+Approving the exact command is expected; decline anything that is not one of the bundled `scripts/*.py` files.
+
 ## Scenarios (try at least three; use a past or fictional partner — no real partner data in feedback)
 1. **New SD from scratch** — `/payroc-solution-design:sd-new <partner>`; answer the interview; open the HTML in Chrome/Edge, enable
    autosave and Markdown autosave; confirm the `.md` updates within ~2 s of an edit.

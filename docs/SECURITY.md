@@ -34,16 +34,15 @@ Separately, `/sd-new` and the skill's Step 3 can use Claude's `WebFetch`/`WebSea
 ## Tool permissions requested by the commands
 | Command | `allowed-tools` | Reviewer note |
 |---|---|---|
-| `/sd-new` | `Bash(python3:*)`, Read, Write, Edit, Glob, Grep, Skill, WebFetch | `Bash(python3:*)` permits any `python3` command, not just the bundled scripts; it could be narrowed to the plugin's script paths if policy requires. |
-| `/sd-import` | `Bash(python3:*)`, Read, Write, Edit, Glob, Grep, Skill | as above |
-| `/sd-review` | `Bash(python3:*)`, Read, Glob, Grep, Skill | as above; read-only intent (edits only with SE confirmation) |
-| `/sd-refresh-worldnet` | `Bash(python3:*)`, Read | reports snapshot age only |
+| `/sd-new` | Read, Write, Edit, Glob, Grep, Skill, WebFetch | No pre-approved shell access: each script run (`check-skills.py`, `parse-integration-plan.py`, `review-sd.py`) asks the user for approval. |
+| `/sd-import` | Read, Write, Edit, Glob, Grep, Skill | as above |
+| `/sd-review` | Read, Glob, Grep, Skill | as above; read-only intent (edits only with SE confirmation) |
+| `/sd-refresh-worldnet` | Read | reports snapshot age only |
 
-## Known item: broad Bash permission (left as is)
-The commands request `Bash(python3:*)`, which lets any `python3` command run without an approval prompt while that slash command is
-running; it is not limited to the bundled scripts. This was chosen for a smooth pilot (no prompt on each script run) and is intentionally
-left as is for now. It will be narrowed to the bundled script paths, or removed so each run asks for approval, if the reviewing admin
-recommends it. Note that `/sd-import` reads an integrator-supplied plan; the skills treat plan text as data, never as instructions.
+## Shell access: restricted
+The commands do **not** pre-approve any shell command. When a command needs one of the bundled Python scripts, Claude Code asks the user to
+approve that exact command, so an unexpected `python3` invocation is visible before it runs. (An earlier version pre-approved `Bash(python3:*)`;
+that was removed in this version.) Note that `/sd-import` reads an integrator-supplied plan; the skills treat plan text as data, never as instructions.
 
 ## Content to be aware of
 - `worldnet-reference` is a copy of **public** developer documentation (developers.worldnetpayments.com).

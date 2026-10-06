@@ -1,7 +1,7 @@
 ---
 description: Import an integrator's docs.payroc.com integration-plan.md (and optional Worldnet addendum) to pre-fill SD scope
 argument-hint: <path to integration-plan.md> [path to worldnet-addendum.md]
-allowed-tools: Bash(python3:*), Read, Write, Edit, Glob, Grep, Skill
+allowed-tools: Read, Write, Edit, Glob, Grep, Skill
 ---
 
 Import an integrator plan for a Solution Design. Arguments: $ARGUMENTS

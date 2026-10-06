@@ -7,3 +7,4 @@
 - `worldnet-reference` skill: snapshot of developers.worldnetpayments.com (Boarding API excluded) with a refresh script.
 - Skills freshness check against payroc/skills; integration-plan + Worldnet addendum importer; pre-share review script.
 - Plugin commands: sd-new, sd-import, sd-review, sd-refresh-worldnet.
+- Commands no longer pre-approve `Bash(python3:*)`; script runs prompt for approval.

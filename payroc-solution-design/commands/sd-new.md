@@ -1,7 +1,7 @@
 ---
 description: Start a new Payroc Solution Design (guided interview -> editable HTML + Markdown twin)
 argument-hint: [partner name]
-allowed-tools: Bash(python3:*), Read, Write, Edit, Glob, Grep, Skill, WebFetch
+allowed-tools: Read, Write, Edit, Glob, Grep, Skill, WebFetch
 ---
 
 Use the `create-solution-design` skill to build a Solution Design for: $ARGUMENTS

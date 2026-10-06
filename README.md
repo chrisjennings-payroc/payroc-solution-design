@@ -25,6 +25,9 @@ This repo is a **Claude Code plugin marketplace** containing one plugin, `payroc
    ```
    From a local checkout: `/plugin marketplace add ./payroc-solution-design` (path to this folder).
 
+> **Organization policy:** some organizations restrict which plugin marketplaces can be added. If `/plugin marketplace add` is blocked, ask your
+> admin to allow this source and point them to [docs/SECURITY.md](docs/SECURITY.md) (what the plugin runs, what it fetches, and that it stores no credentials).
+
 ## Use
 
 | Command | What it does |

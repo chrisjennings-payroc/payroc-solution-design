@@ -30,7 +30,7 @@ The sibling skill `worldnet-reference` holds the Worldnet documentation snapshot
 3. Claude checks that the skills are current, optionally imports the integrator's plan, interviews you,
    and writes `<Partner>-Solution-Design.html` and `.md`.
 4. Open the HTML in **Chrome or Edge**, click **Enable autosave to this file**, then **Enable Markdown
-   (.md) autosave** (same folder). Safari/Firefox: use **Download updated copy (HTML + .md)**.
+   (.md) autosave** (same folder). Safari/Firefox: use **Download updated copy (HTML + .md)**. For the signed final version, click **Download .pdf**.
 5. Drive **Unresolved fields** to 0, then run `python3 scripts/review-sd.py <file>.html`.
 
 ## Working in the HTML

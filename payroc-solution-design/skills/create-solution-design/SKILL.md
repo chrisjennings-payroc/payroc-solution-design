@@ -224,6 +224,8 @@ partner) and a Markdown twin (so any other agentic tool can ingest it). Both are
    **Enable autosave to this file** and then **Enable Markdown (.md) autosave** right away (pick the
    same folder and the `.md` name), before making further edits. In Safari/Firefox, use
    **Download updated copy (HTML + .md)** to keep both files.
+10. **Final version:** once both parties have signed, click **Download .pdf** in the autosave bar for the
+   signed PDF copy (built in the browser from the same content, with the signatures embedded; no library).
 
 ## Importing an integrator plan
 

@@ -175,8 +175,10 @@ requiring the SE to invent the format from scratch.
 
 ## Step 5 — Architecture & sign-off
 
-Diagram reference and PCI-scope one-liner (Section 6). Leave Section 12 sign-off names as
-placeholders — that's a physical signing step, not interview data.
+Diagram reference and PCI-scope one-liner (Section 6). Leave Section 12 sign-off blank — signing
+happens in the HTML after the SE and partner review: each party enters a name and title, then types or
+draws a signature, and the certified date fills in once both have signed. It's an electronic signature
+(typed name + drawn image + timestamp), not interview data and not a cryptographic one.
 
 ## Step 6 — Assemble the output
 

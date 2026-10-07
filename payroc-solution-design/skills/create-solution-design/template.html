@@ -6,7 +6,7 @@
 <meta name="sd-template-version" content="0.2.0">
 <title>{{Partner Name}} — Solution Design | Payroc</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
 <style>
   :root{
     --navy:#001D4E;
@@ -306,7 +306,25 @@
   .provenance{font-size:13px; color:var(--ink-soft);}
   nav.toc a.toc-hidden{display:none;}
 
+  /* Sign-off: typed name + drawn signature */
+  .sig-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:14px;}
+  .sig-card{border:1px solid var(--border); border-radius:12px; padding:14px 16px; background:var(--card);}
+  .sig-card h3{margin:0 0 8px; font-size:15px;}
+  .sig-field{margin-bottom:8px;}
+  .sig-field label, .sig-label{display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); margin:0 0 4px;}
+  .sig-field input{width:100%; box-sizing:border-box; font:inherit; font-size:14px; padding:7px 10px; border:1px solid var(--border); border-radius:8px; background:#fff; color:var(--ink);}
+  .sig-tabs{display:inline-flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:6px;}
+  .sig-tabs button{border:none; background:#fff; padding:4px 14px; font:inherit; font-size:12px; font-weight:600; color:var(--ink-soft); cursor:pointer;}
+  .sig-tabs button.on{background:var(--blue); color:#fff;}
+  .sig-preview{height:70px; display:flex; align-items:center; padding:0 14px; border:1px dashed var(--blue); border-radius:10px; background:#fff; font-family:'Dancing Script','Snell Roundhand','Brush Script MT','Segoe Script',cursive; font-size:38px; color:var(--navy); overflow:hidden; white-space:nowrap;}
+  .sig-pad{width:100%; height:90px; border:1px dashed var(--blue); border-radius:10px; background:#fff; touch-action:none; cursor:crosshair; display:block;}
+  .sig-signed img{display:block; max-width:100%; height:70px; object-fit:contain; object-position:left; border:1px solid var(--border); border-radius:10px; background:#fff;}
+  .sig-note{font-size:12px; color:var(--ink-soft); margin-top:4px;}
+  .sig-actions{display:flex; gap:8px; margin-top:6px;}
+  @media (max-width:860px){.sig-grid{grid-template-columns:1fr;}}
+
   @media print{
+    .sig-tabs, .sig-actions, .sig-pad{display:none !important;}
     nav.toc{display:none;}
     .layout{grid-template-columns:1fr;}
     body{background:#fff;}
@@ -1285,17 +1303,15 @@
       <span class="section-tag">Section 12</span>
       <h2>Sign-Off</h2>
       <p>By signing below, both parties confirm this document accurately reflects the integration's scope, requirements, and timeline as of the date signed.</p>
-      <table>
-        <tr><th></th><th>Name</th><th>Title</th><th>Date</th><th>Signature</th></tr>
-        <tr><td><strong>Payroc</strong></td><td class="fill" contenteditable="true" spellcheck="false">{{name}}</td><td class="fill" contenteditable="true" spellcheck="false">{{Sales Engineer}}</td><td></td><td></td></tr>
-        <tr><td><strong>{{Partner name}}</strong></td><td class="fill" contenteditable="true" spellcheck="false">{{name}}</td><td class="fill" contenteditable="true" spellcheck="false">{{title}}</td><td></td><td></td></tr>
-      </table>
+      <div id="signoff-root"></div>
     </section>
 
   </main>
 </div>
 
 <footer>Payroc Solution Design &middot; Confidential &mdash; prepared for the named partner &middot; docs.payroc.com</footer>
+
+<script type="application/json" id="sd-signoff">{}</script>
 
 <script type="application/json" id="sd-provenance">
 {"templateVersion":"0.2.0","skills":{"repo":"payroc/skills","ref":"main","commit":null,"checkedAt":null,"result":"not-run"},"worldnet":{"snapshot":null,"result":"not-run"},"integrationPlan":null,"generatedBy":null}
@@ -1586,6 +1602,19 @@
         var sel = sec.querySelector('select.platform-select');
         out.push('- in_scope: ' + (cb && cb.checked ? 'yes' : 'no'));
         out.push('- platform: ' + (sel ? sel.value : (sec.getAttribute('data-platform') || 'payroc')), '');
+      }
+      if (sec.id === 'signoff' && window.__sdSignoff) {
+        var so = window.__sdSignoff.get();
+        function ln(k, v) { out.push('- ' + k + ': ' + (v || '')); }
+        sec.querySelectorAll(':scope > p').forEach(function (p) { var t = inl(p).trim(); if (t) out.push(t, ''); });
+        ln('certified_date', window.__sdSignoff.certifiedDate());
+        ['payroc', 'partner'].forEach(function (w) {
+          var pre = w + '_representative_';
+          ln(pre + 'name', so[w + 'Name']); ln(pre + 'title', so[w + 'Title']);
+          ln(pre + 'signed_at', so[w + 'Sig'] ? so[w + 'At'] : '');
+        });
+        out.push('');
+        return;
       }
       blocks(sec, out);
     }
@@ -2200,6 +2229,85 @@
       el.querySelectorAll('input, button').forEach(function (control) {
         control.setAttribute('contenteditable', 'false');
       });
+    });
+  })();
+
+  // ===== Sign-off: typed name + drawn signature (electronic signature; not a cryptographic/certified signature) =====
+  // State lives in <script id="sd-signoff"> so it survives the HTML save/reopen cycle; the .md twin records
+  // names, titles and signed-at timestamps only (signature images stay in the HTML).
+  (function () {
+    var store = document.getElementById('sd-signoff'), root = document.getElementById('signoff-root');
+    if (!store || !root) return;
+    var so = {};
+    try { so = JSON.parse(store.textContent) || {}; } catch (e) { so = {}; }
+    function save() { store.textContent = JSON.stringify(so); if (window.__triggerAutosave) window.__triggerAutosave(); }
+    function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function day(iso) { var d = new Date(iso); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+    function certifiedDate() { return so.payrocSig && so.partnerSig ? day(new Date(Math.max(new Date(so.payrocAt), new Date(so.partnerAt))).toISOString()) : ''; }
+    function partnerLabel() { var t = document.querySelector('.doc-title .fill'); var n = t ? t.textContent.trim() : ''; return n && !/^\{\{.*\}\}$/.test(n) ? n : 'Partner'; }
+    function card(who, title) {
+      var sig = so[who + 'Sig'], at = so[who + 'At'], name = so[who + 'Name'] || '', ttl = so[who + 'Title'] || '', mode = so[who + 'Mode'] || 'type';
+      var h = '<div class="sig-card" data-who="' + who + '"><h3>' + title + '</h3>' +
+        '<div class="sig-field"><label>Name</label><input data-sig-field="Name" value="' + esc(name) + '"></div>' +
+        '<div class="sig-field"><label>Title</label><input data-sig-field="Title" value="' + esc(ttl) + '"></div><span class="sig-label">Signature</span>';
+      if (sig) h += '<div class="sig-signed"><img alt="Signature" src="' + esc(sig) + '"><div class="sig-note">Signed by ' + esc(name || 'name not entered') + (ttl ? ', ' + esc(ttl) : '') + ' on ' + esc(new Date(at).toLocaleString()) + '</div><div class="sig-actions"><button type="button" class="btn secondary" data-sig-action="clear">Clear signature</button></div></div>';
+      else {
+        h += '<div class="sig-tabs"><button type="button" class="' + (mode === 'type' ? 'on' : '') + '" data-sig-action="mode" data-mode="type">Type</button><button type="button" class="' + (mode === 'draw' ? 'on' : '') + '" data-sig-action="mode" data-mode="draw">Draw</button></div>';
+        h += mode === 'type' ? '<div class="sig-preview" data-sig-preview>' + esc(name) + '</div><div class="sig-note">Your typed name is converted to a signature.</div>'
+          : '<canvas class="sig-pad" width="560" height="120"></canvas><div class="sig-note">Sign with your mouse, trackpad or finger.</div>';
+        h += '<div class="sig-actions">' + (mode === 'draw' ? '<button type="button" class="btn secondary" data-sig-action="reset">Clear</button>' : '') + '<button type="button" class="btn" data-sig-action="apply">Apply signature</button></div>';
+      }
+      return h + '</div>';
+    }
+    function render() {
+      root.innerHTML = '<div class="card"><div class="sig-field" style="max-width:260px"><label>Certified date</label><input readonly value="' + esc(certifiedDate()) + '" placeholder="Filled in when both parties have signed"></div>' +
+        '<div class="sig-grid">' + card('payroc', 'Payroc') + card('partner', '<span data-partner-label>' + esc(partnerLabel()) + '</span>') + '</div></div>';
+    }
+    window.__sdSignoff = { get: function () { return so; }, certifiedDate: certifiedDate };
+    render();
+
+    var title = document.querySelector('.doc-title');
+    if (title) title.addEventListener('input', function () { var l = root.querySelector('[data-partner-label]'); if (l) l.textContent = partnerLabel(); });
+
+    root.addEventListener('input', function (e) {
+      var f = e.target.getAttribute && e.target.getAttribute('data-sig-field'); if (!f) return;
+      var who = e.target.closest('.sig-card').getAttribute('data-who');
+      so[who + f] = e.target.value;
+      if (f === 'Name') { var pv = e.target.closest('.sig-card').querySelector('[data-sig-preview]'); if (pv) pv.textContent = e.target.value; }
+      save();
+    });
+
+    var drawing = null;
+    function pos(c, e) { var r = c.getBoundingClientRect(); return [(e.clientX - r.left) * c.width / r.width, (e.clientY - r.top) * c.height / r.height]; }
+    root.addEventListener('pointerdown', function (e) {
+      var c = e.target.closest && e.target.closest('canvas.sig-pad'); if (!c) return;
+      drawing = c; try { c.setPointerCapture(e.pointerId); } catch (err) { }
+      var x = c.getContext('2d'), p = pos(c, e);
+      x.lineWidth = 2.5; x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = '#001D4E';
+      x.beginPath(); x.moveTo(p[0], p[1]); x.lineTo(p[0] + 0.1, p[1] + 0.1); x.stroke(); c.dataset.dirty = '1'; e.preventDefault();
+    });
+    root.addEventListener('pointermove', function (e) { if (!drawing) return; var x = drawing.getContext('2d'), p = pos(drawing, e); x.lineTo(p[0], p[1]); x.stroke(); });
+    document.addEventListener('pointerup', function () { drawing = null; });
+
+    function apply(who, dataUrl) { so[who + 'Sig'] = dataUrl; so[who + 'At'] = new Date().toISOString(); save(); render(); }
+    root.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('[data-sig-action]'); if (!a) return;
+      var cardEl = a.closest('.sig-card'), who = cardEl.getAttribute('data-who'), act = a.getAttribute('data-sig-action');
+      if (act === 'mode') { so[who + 'Mode'] = a.getAttribute('data-mode'); save(); render(); return; }
+      if (act === 'clear') { delete so[who + 'Sig']; delete so[who + 'At']; save(); render(); return; }
+      if (act === 'reset') { var c0 = cardEl.querySelector('canvas.sig-pad'); c0.getContext('2d').clearRect(0, 0, c0.width, c0.height); delete c0.dataset.dirty; return; }
+      if (act === 'apply') {
+        var cv = cardEl.querySelector('canvas.sig-pad'), nm = (so[who + 'Name'] || '').trim();
+        if (!nm) { alert('Enter the name first.'); return; }
+        if (cv) { if (!cv.dataset.dirty) { alert('Draw a signature first.'); return; } apply(who, cv.toDataURL('image/png')); return; }
+        var FONT = '"Dancing Script","Snell Roundhand","Brush Script MT","Segoe Script",cursive';
+        (document.fonts && document.fonts.load ? document.fonts.load('64px "Dancing Script"', nm).catch(function () { }) : Promise.resolve()).then(function () {
+          var c2 = document.createElement('canvas'); c2.width = 560; c2.height = 140; var x = c2.getContext('2d');
+          var size = 72; x.font = size + 'px ' + FONT; while (x.measureText(nm).width > 520 && size > 24) { size -= 4; x.font = size + 'px ' + FONT; }
+          x.fillStyle = '#001D4E'; x.textBaseline = 'middle'; x.fillText(nm, 20, 72);
+          apply(who, c2.toDataURL('image/png'));
+        });
+      }
     });
   })();
 </script>

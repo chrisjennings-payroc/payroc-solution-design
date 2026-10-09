@@ -6,7 +6,7 @@
 <meta name="sd-template-version" content="0.2.0">
 <title>{{Partner Name}} — Solution Design | Payroc</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
 <style>
   :root{
     --navy:#001D4E;
@@ -306,7 +306,25 @@
   .provenance{font-size:13px; color:var(--ink-soft);}
   nav.toc a.toc-hidden{display:none;}
 
+  /* Sign-off: typed name + drawn signature */
+  .sig-grid{display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:14px;}
+  .sig-card{border:1px solid var(--border); border-radius:12px; padding:14px 16px; background:var(--card);}
+  .sig-card h3{margin:0 0 8px; font-size:15px;}
+  .sig-field{margin-bottom:8px;}
+  .sig-field label, .sig-label{display:block; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--ink-soft); margin:0 0 4px;}
+  .sig-field input{width:100%; box-sizing:border-box; font:inherit; font-size:14px; padding:7px 10px; border:1px solid var(--border); border-radius:8px; background:#fff; color:var(--ink);}
+  .sig-tabs{display:inline-flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; margin-bottom:6px;}
+  .sig-tabs button{border:none; background:#fff; padding:4px 14px; font:inherit; font-size:12px; font-weight:600; color:var(--ink-soft); cursor:pointer;}
+  .sig-tabs button.on{background:var(--blue); color:#fff;}
+  .sig-preview{height:70px; display:flex; align-items:center; padding:0 14px; border:1px dashed var(--blue); border-radius:10px; background:#fff; font-family:'Dancing Script','Snell Roundhand','Brush Script MT','Segoe Script',cursive; font-size:38px; color:var(--navy); overflow:hidden; white-space:nowrap;}
+  .sig-pad{width:100%; height:90px; border:1px dashed var(--blue); border-radius:10px; background:#fff; touch-action:none; cursor:crosshair; display:block;}
+  .sig-signed img{display:block; max-width:100%; height:70px; object-fit:contain; object-position:left; border:1px solid var(--border); border-radius:10px; background:#fff;}
+  .sig-note{font-size:12px; color:var(--ink-soft); margin-top:4px;}
+  .sig-actions{display:flex; gap:8px; margin-top:6px;}
+  @media (max-width:860px){.sig-grid{grid-template-columns:1fr;}}
+
   @media print{
+    .sig-tabs, .sig-actions, .sig-pad{display:none !important;}
     nav.toc{display:none;}
     .layout{grid-template-columns:1fr;}
     body{background:#fff;}
@@ -396,11 +414,13 @@
         <button class="btn" id="enable-autosave-btn" style="display:none;">Enable autosave to this file</button>
         <button class="btn secondary" id="enable-md-btn" style="display:none;" title="Also keep a Markdown copy in sync so other tools and AI agents can read this document">Enable Markdown (.md) autosave</button>
         <button class="btn secondary" id="download-md-btn" title="Download a Markdown copy of this document right now">Download .md</button>
+        <button class="btn secondary" id="download-pdf-btn" title="Download a PDF of this document (use for the final signed version)">Download .pdf</button>
       </div>
     </div>
     <div class="autosave-fallback" id="autosave-fallback">
       <span>This browser can't autosave directly to a file. Edits are cached locally as you type — click Download regularly to keep an actual saved copy.</span>
       <button class="btn secondary" id="download-copy-btn">Download updated copy (HTML + .md)</button>
+      <button class="btn secondary" id="download-pdf-btn-2">Download .pdf</button>
     </div>
     <div class="restore-banner" id="restore-banner">
       <span>A locally cached draft newer than this file was found from a previous session.</span>
@@ -1285,17 +1305,15 @@
       <span class="section-tag">Section 12</span>
       <h2>Sign-Off</h2>
       <p>By signing below, both parties confirm this document accurately reflects the integration's scope, requirements, and timeline as of the date signed.</p>
-      <table>
-        <tr><th></th><th>Name</th><th>Title</th><th>Date</th><th>Signature</th></tr>
-        <tr><td><strong>Payroc</strong></td><td class="fill" contenteditable="true" spellcheck="false">{{name}}</td><td class="fill" contenteditable="true" spellcheck="false">{{Sales Engineer}}</td><td></td><td></td></tr>
-        <tr><td><strong>{{Partner name}}</strong></td><td class="fill" contenteditable="true" spellcheck="false">{{name}}</td><td class="fill" contenteditable="true" spellcheck="false">{{title}}</td><td></td><td></td></tr>
-      </table>
+      <div id="signoff-root"></div>
     </section>
 
   </main>
 </div>
 
 <footer>Payroc Solution Design &middot; Confidential &mdash; prepared for the named partner &middot; docs.payroc.com</footer>
+
+<script type="application/json" id="sd-signoff">{}</script>
 
 <script type="application/json" id="sd-provenance">
 {"templateVersion":"0.2.0","skills":{"repo":"payroc/skills","ref":"main","commit":null,"checkedAt":null,"result":"not-run"},"worldnet":{"snapshot":null,"result":"not-run"},"integrationPlan":null,"generatedBy":null}
@@ -1586,6 +1604,19 @@
         var sel = sec.querySelector('select.platform-select');
         out.push('- in_scope: ' + (cb && cb.checked ? 'yes' : 'no'));
         out.push('- platform: ' + (sel ? sel.value : (sec.getAttribute('data-platform') || 'payroc')), '');
+      }
+      if (sec.id === 'signoff' && window.__sdSignoff) {
+        var so = window.__sdSignoff.get();
+        function ln(k, v) { out.push('- ' + k + ': ' + (v || '')); }
+        sec.querySelectorAll(':scope > p').forEach(function (p) { var t = inl(p).trim(); if (t) out.push(t, ''); });
+        ln('certified_date', window.__sdSignoff.certifiedDate());
+        ['payroc', 'partner'].forEach(function (w) {
+          var pre = w + '_representative_';
+          ln(pre + 'name', so[w + 'Name']); ln(pre + 'title', so[w + 'Title']);
+          ln(pre + 'signed_at', so[w + 'Sig'] ? so[w + 'At'] : '');
+        });
+        out.push('');
+        return;
       }
       blocks(sec, out);
     }
@@ -2201,6 +2232,209 @@
         control.setAttribute('contenteditable', 'false');
       });
     });
+  })();
+
+  // ===== Sign-off: typed name + drawn signature (electronic signature; not a cryptographic/certified signature) =====
+  // State lives in <script id="sd-signoff"> so it survives the HTML save/reopen cycle; the .md twin records
+  // names, titles and signed-at timestamps only (signature images stay in the HTML).
+  (function () {
+    var store = document.getElementById('sd-signoff'), root = document.getElementById('signoff-root');
+    if (!store || !root) return;
+    var so = {};
+    try { so = JSON.parse(store.textContent) || {}; } catch (e) { so = {}; }
+    function save() { store.textContent = JSON.stringify(so); if (window.__triggerAutosave) window.__triggerAutosave(); }
+    function esc(v) { return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function day(iso) { var d = new Date(iso); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+    function certifiedDate() { return so.payrocSig && so.partnerSig ? day(new Date(Math.max(new Date(so.payrocAt), new Date(so.partnerAt))).toISOString()) : ''; }
+    function partnerLabel() { var t = document.querySelector('.doc-title .fill'); var n = t ? t.textContent.trim() : ''; return n && !/^\{\{.*\}\}$/.test(n) ? n : 'Partner'; }
+    function card(who, title) {
+      var sig = so[who + 'Sig'], at = so[who + 'At'], name = so[who + 'Name'] || '', ttl = so[who + 'Title'] || '', mode = so[who + 'Mode'] || 'type';
+      var h = '<div class="sig-card" data-who="' + who + '"><h3>' + title + '</h3>' +
+        '<div class="sig-field"><label>Name</label><input data-sig-field="Name" value="' + esc(name) + '"></div>' +
+        '<div class="sig-field"><label>Title</label><input data-sig-field="Title" value="' + esc(ttl) + '"></div><span class="sig-label">Signature</span>';
+      if (sig) h += '<div class="sig-signed"><img alt="Signature" src="' + esc(sig) + '"><div class="sig-note">Signed by ' + esc(name || 'name not entered') + (ttl ? ', ' + esc(ttl) : '') + ' on ' + esc(new Date(at).toLocaleString()) + '</div><div class="sig-actions"><button type="button" class="btn secondary" data-sig-action="clear">Clear signature</button></div></div>';
+      else {
+        h += '<div class="sig-tabs"><button type="button" class="' + (mode === 'type' ? 'on' : '') + '" data-sig-action="mode" data-mode="type">Type</button><button type="button" class="' + (mode === 'draw' ? 'on' : '') + '" data-sig-action="mode" data-mode="draw">Draw</button></div>';
+        h += mode === 'type' ? '<div class="sig-preview" data-sig-preview>' + esc(name) + '</div><div class="sig-note">Your typed name is converted to a signature.</div>'
+          : '<canvas class="sig-pad" width="560" height="120"></canvas><div class="sig-note">Sign with your mouse, trackpad or finger.</div>';
+        h += '<div class="sig-actions">' + (mode === 'draw' ? '<button type="button" class="btn secondary" data-sig-action="reset">Clear</button>' : '') + '<button type="button" class="btn" data-sig-action="apply">Apply signature</button></div>';
+      }
+      return h + '</div>';
+    }
+    function render() {
+      root.innerHTML = '<div class="card"><div class="sig-field" style="max-width:260px"><label>Certified date</label><input readonly value="' + esc(certifiedDate()) + '" placeholder="Filled in when both parties have signed"></div>' +
+        '<div class="sig-grid">' + card('payroc', 'Payroc') + card('partner', '<span data-partner-label>' + esc(partnerLabel()) + '</span>') + '</div></div>';
+    }
+    window.__sdSignoff = { get: function () { return so; }, certifiedDate: certifiedDate };
+    render();
+
+    var title = document.querySelector('.doc-title');
+    if (title) title.addEventListener('input', function () { var l = root.querySelector('[data-partner-label]'); if (l) l.textContent = partnerLabel(); });
+
+    root.addEventListener('input', function (e) {
+      var f = e.target.getAttribute && e.target.getAttribute('data-sig-field'); if (!f) return;
+      var who = e.target.closest('.sig-card').getAttribute('data-who');
+      so[who + f] = e.target.value;
+      if (f === 'Name') { var pv = e.target.closest('.sig-card').querySelector('[data-sig-preview]'); if (pv) pv.textContent = e.target.value; }
+      save();
+    });
+
+    var drawing = null;
+    function pos(c, e) { var r = c.getBoundingClientRect(); return [(e.clientX - r.left) * c.width / r.width, (e.clientY - r.top) * c.height / r.height]; }
+    root.addEventListener('pointerdown', function (e) {
+      var c = e.target.closest && e.target.closest('canvas.sig-pad'); if (!c) return;
+      drawing = c; try { c.setPointerCapture(e.pointerId); } catch (err) { }
+      var x = c.getContext('2d'), p = pos(c, e);
+      x.lineWidth = 2.5; x.lineCap = 'round'; x.lineJoin = 'round'; x.strokeStyle = '#001D4E';
+      x.beginPath(); x.moveTo(p[0], p[1]); x.lineTo(p[0] + 0.1, p[1] + 0.1); x.stroke(); c.dataset.dirty = '1'; e.preventDefault();
+    });
+    root.addEventListener('pointermove', function (e) { if (!drawing) return; var x = drawing.getContext('2d'), p = pos(drawing, e); x.lineTo(p[0], p[1]); x.stroke(); });
+    document.addEventListener('pointerup', function () { drawing = null; });
+
+    function apply(who, dataUrl) { so[who + 'Sig'] = dataUrl; so[who + 'At'] = new Date().toISOString(); save(); render(); }
+    root.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('[data-sig-action]'); if (!a) return;
+      var cardEl = a.closest('.sig-card'), who = cardEl.getAttribute('data-who'), act = a.getAttribute('data-sig-action');
+      if (act === 'mode') { so[who + 'Mode'] = a.getAttribute('data-mode'); save(); render(); return; }
+      if (act === 'clear') { delete so[who + 'Sig']; delete so[who + 'At']; save(); render(); return; }
+      if (act === 'reset') { var c0 = cardEl.querySelector('canvas.sig-pad'); c0.getContext('2d').clearRect(0, 0, c0.width, c0.height); delete c0.dataset.dirty; return; }
+      if (act === 'apply') {
+        var cv = cardEl.querySelector('canvas.sig-pad'), nm = (so[who + 'Name'] || '').trim();
+        if (!nm) { alert('Enter the name first.'); return; }
+        if (cv) { if (!cv.dataset.dirty) { alert('Draw a signature first.'); return; } apply(who, cv.toDataURL('image/png')); return; }
+        var FONT = '"Dancing Script","Snell Roundhand","Brush Script MT","Segoe Script",cursive';
+        (document.fonts && document.fonts.load ? document.fonts.load('64px "Dancing Script"', nm).catch(function () { }) : Promise.resolve()).then(function () {
+          var c2 = document.createElement('canvas'); c2.width = 560; c2.height = 140; var x = c2.getContext('2d');
+          var size = 72; x.font = size + 'px ' + FONT; while (x.measureText(nm).width > 520 && size > 24) { size -= 4; x.font = size + 'px ' + FONT; }
+          x.fillStyle = '#001D4E'; x.textBaseline = 'middle'; x.fillText(nm, 20, 72);
+          apply(who, c2.toDataURL('image/png'));
+        });
+      }
+    });
+  })();
+
+  // ===== PDF export (no library: a small text PDF writer fed from the Markdown twin) =====
+  // Used for the "final version" copy. Text is wrapped Helvetica; signature images are embedded as JPEG.
+  (function () {
+    var W = 612, H = 792, M = 46;
+    function t(s) {
+      return String(s == null ? '' : s).replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/[–—]/g, '-')
+        .replace(/…/g, '...').replace(/[•·]/g, '-').replace(/[^\x20-\x7E\xA0-\xFF]/g, '?');
+    }
+    function esc(s) { return s.replace(/[\\()]/g, '\\$&'); }
+    function clean(s) {
+      return t(s.replace(/\*\*(.+?)\*\*/g, '$1').replace(/`([^`]*)`/g, '$1').replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1 ($2)').replace(/\\([|*_`])/g, '$1').replace(/<br\s*\/?>/gi, ' ')).replace(/\s+/g, ' ').trim();
+    }
+    var mctx = document.createElement('canvas').getContext('2d');
+    function width(s, size, bold) { mctx.font = (bold ? 'bold ' : '') + size + 'px Helvetica, Arial, sans-serif'; return mctx.measureText(s).width; }
+    function wrap(s, size, bold, w) {
+      var out = [], cur = '';
+      s.split(' ').forEach(function (word) {
+        var tryLine = cur ? cur + ' ' + word : word;
+        if (cur && width(tryLine, size, bold) > w) { out.push(cur); cur = word; } else cur = tryLine;
+      });
+      if (cur) out.push(cur);
+      return out;
+    }
+    function jpegOf(dataUrl) {
+      return new Promise(function (resolve) {
+        var img = new Image();
+        img.onload = function () {
+          var c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+          var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(img, 0, 0);
+          resolve({ w: c.width, h: c.height, data: atob(c.toDataURL('image/jpeg', 0.92).split(',')[1]) });
+        };
+        img.onerror = function () { resolve(null); };
+        img.src = dataUrl;
+      });
+    }
+
+    async function buildPdf() {
+      var lines = window.sdToMarkdown().split('\n'), i = 0;
+      if (lines[0] === '---') { i = 1; while (i < lines.length && lines[i] !== '---') i++; i++; }
+      var pages = [], page = null, y = 0, so = window.__sdSignoff ? window.__sdSignoff.get() : {}, images = [];
+      var NAVY = [0, 29, 78], INK = [11, 18, 32], SOFT = [75, 85, 102];
+      function col(c) { return (c[0] / 255).toFixed(3) + ' ' + (c[1] / 255).toFixed(3) + ' ' + (c[2] / 255).toFixed(3); }
+      function newPage() {
+        page = { ops: [], imgs: [] }; pages.push(page);
+        page.ops.push(col([0, 29, 78]) + ' rg 0 ' + (H - 34) + ' ' + W + ' 34 re f');
+        text('PAYROC  |  SOLUTION DESIGN', M, 21, 9, true, [255, 255, 255]);
+        y = 56;
+      }
+      function text(s, x, ytop, size, bold, color) {
+        page.ops.push('BT /' + (bold ? 'F2' : 'F1') + ' ' + size + ' Tf ' + col(color || INK) + ' rg ' + x.toFixed(1) + ' ' + (H - ytop).toFixed(1) + ' Td (' + esc(s) + ') Tj ET');
+      }
+      function need(h) { if (y + h > H - 44) newPage(); }
+      function para(s, size, bold, color, indent, after) {
+        s = clean(s); if (!s) return;
+        wrap(s, size, bold, W - 2 * M - (indent || 0)).forEach(function (ln) { need(size + 4); text(ln, M + (indent || 0), y, size, bold, color); y += size + 3; });
+        y += after || 0;
+      }
+      newPage();
+      for (; i < lines.length; i++) {
+        var ln = lines[i];
+        if (!ln.trim() || /^\s*>/.test(ln) || /^\s*<!--/.test(ln)) continue;
+        var m;
+        if ((m = /^# (.*)/.exec(ln))) { para(m[1], 20, true, NAVY, 0, 8); continue; }
+        if ((m = /^## (.*)/.exec(ln))) { need(60); y += 10; para(m[1], 14, true, NAVY, 0, 2); page.ops.push('0.886 0.910 0.941 RG ' + M + ' ' + (H - y + 8) + ' m ' + (W - M) + ' ' + (H - y + 8) + ' l S'); y += 4; continue; }
+        if ((m = /^### (.*)/.exec(ln))) { need(40); y += 6; para(m[1], 12, true, NAVY, 0, 2); continue; }
+        if ((m = /^#### (.*)/.exec(ln))) { need(30); y += 4; para(m[1], 10.5, true, [0, 67, 163], 0, 2); continue; }
+        if ((m = /^(\s*)- (.*)/.exec(ln))) { para('- ' + m[2], 9.5, false, INK, 8 + 12 * Math.floor(m[1].length / 2), 1); continue; }
+        if (/^\s*\|/.test(ln)) {
+          if (/^\s*\|[\s:|-]+\|\s*$/.test(ln)) continue;
+          var cells = ln.trim().replace(/^\||\|$/g, '').split(/(?<!\\)\|/).map(function (c) { return c.trim(); });
+          var isHead = /^\s*\|[\s:|-]+\|\s*$/.test(lines[i + 1] || '');
+          para(cells.filter(Boolean).join('  |  '), 9, isHead, isHead ? NAVY : INK, 8, 1); continue;
+        }
+        para(ln, 9.5, false, INK, 0, 3);
+      }
+      // Signatures
+      need(120); y += 10; para('Signatures', 12, true, NAVY, 0, 2);
+      var who = [['payroc', 'Payroc'], ['partner', window.__sdSignoff ? (document.querySelector('[data-partner-label]') || {}).textContent || 'Partner' : 'Partner']];
+      for (var k = 0; k < who.length; k++) {
+        var w = who[k][0], sig = so[w + 'Sig'];
+        need(95);
+        para(who[k][1] + ': ' + (so[w + 'Name'] || '-') + (so[w + 'Title'] ? ', ' + so[w + 'Title'] : '') + (sig ? '  (signed ' + new Date(so[w + 'At']).toLocaleString() + ')' : '  (not signed)'), 9.5, true, INK, 0, 2);
+        var img = sig ? await jpegOf(sig) : null;
+        if (img) {
+          images.push(img); var idx = images.length, h = 54, wd = Math.min(img.w * h / img.h, 220);
+          page.imgs.push(idx); page.ops.push('q ' + wd.toFixed(1) + ' 0 0 ' + h + ' ' + M + ' ' + (H - y - h) + ' cm /Im' + idx + ' Do Q'); y += h + 8;
+        } else y += 6;
+      }
+      pages.forEach(function (p, n) { page = p; text('Confidential - page ' + (n + 1) + ' of ' + pages.length, W - M - 130, H - 24, 8, false, [120, 120, 120]); });
+
+      // Assemble (binary string: 1 char = 1 byte)
+      var objs = [], K = images.length, base = 5 + K;
+      objs[1] = '<< /Type /Catalog /Pages 2 0 R >>';
+      objs[2] = '<< /Type /Pages /Count ' + pages.length + ' /Kids [' + pages.map(function (_, n) { return (base + 2 * n) + ' 0 R'; }).join(' ') + '] >>';
+      objs[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>';
+      objs[4] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>';
+      images.forEach(function (im, n) { objs[5 + n] = '<< /Type /XObject /Subtype /Image /Width ' + im.w + ' /Height ' + im.h + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + im.data.length + ' >>\nstream\n' + im.data + '\nendstream'; });
+      var xo = images.map(function (_, n) { return '/Im' + (n + 1) + ' ' + (5 + n) + ' 0 R'; }).join(' ');
+      pages.forEach(function (p, n) {
+        var body = p.ops.join('\n');
+        objs[base + 2 * n] = '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + W + ' ' + H + '] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> /XObject << ' + xo + ' >> >> /Contents ' + (base + 2 * n + 1) + ' 0 R >>';
+        objs[base + 2 * n + 1] = '<< /Length ' + body.length + ' >>\nstream\n' + body + '\nendstream';
+      });
+      var out = '%PDF-1.4\n', offs = [];
+      for (var o = 1; o < objs.length; o++) { offs[o] = out.length; out += o + ' 0 obj\n' + objs[o] + '\nendobj\n'; }
+      var xref = out.length;
+      out += 'xref\n0 ' + objs.length + '\n0000000000 65535 f \n';
+      for (o = 1; o < objs.length; o++) out += ('0000000000' + offs[o]).slice(-10) + ' 00000 n \n';
+      out += 'trailer\n<< /Size ' + objs.length + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF';
+      var bytes = new Uint8Array(out.length); for (o = 0; o < out.length; o++) bytes[o] = out.charCodeAt(o) & 255;
+      return new Blob([bytes], { type: 'application/pdf' });
+    }
+    window.__sdBuildPdf = buildPdf;
+
+    function savePdf() {
+      var base = window.__sdBaseName ? window.__sdBaseName() : 'Solution-Design';
+      buildPdf().then(function (blob) {
+        var url = URL.createObjectURL(blob), a = document.createElement('a');
+        a.href = url; a.download = base + '.pdf'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      });
+    }
+    ['download-pdf-btn', 'download-pdf-btn-2'].forEach(function (id) { var b = document.getElementById(id); if (b) b.addEventListener('click', savePdf); });
   })();
 </script>
 

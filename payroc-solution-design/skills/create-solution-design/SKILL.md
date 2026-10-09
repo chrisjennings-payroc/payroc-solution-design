@@ -175,8 +175,10 @@ requiring the SE to invent the format from scratch.
 
 ## Step 5 — Architecture & sign-off
 
-Diagram reference and PCI-scope one-liner (Section 6). Leave Section 12 sign-off names as
-placeholders — that's a physical signing step, not interview data.
+Diagram reference and PCI-scope one-liner (Section 6). Leave Section 12 sign-off blank — signing
+happens in the HTML after the SE and partner review: each party enters a name and title, then types or
+draws a signature, and the certified date fills in once both have signed. It's an electronic signature
+(typed name + drawn image + timestamp), not interview data and not a cryptographic one.
 
 ## Step 6 — Assemble the output
 
@@ -222,6 +224,8 @@ partner) and a Markdown twin (so any other agentic tool can ingest it). Both are
    **Enable autosave to this file** and then **Enable Markdown (.md) autosave** right away (pick the
    same folder and the `.md` name), before making further edits. In Safari/Firefox, use
    **Download updated copy (HTML + .md)** to keep both files.
+10. **Final version:** once both parties have signed, click **Download .pdf** in the autosave bar for the
+   signed PDF copy (built in the browser from the same content, with the signatures embedded; no library).
 
 ## Importing an integrator plan
 

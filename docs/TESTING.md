@@ -8,7 +8,7 @@
 
 ## Install
 See the README. Confirm `/payroc-solution-design:` commands appear. If your organization restricts plugin marketplaces and the add is blocked,
-stop and ask your admin to allow the source (see [SECURITY.md](SECURITY.md)) — do not try to work around the policy.
+stop and ask your admin to allow the source (see [SECURITY.md](security_payroc.md)) — do not try to work around the policy.
 
 ## Scenarios (try at least three; use a past or fictional partner — no real partner data in feedback)
 1. **New SD from scratch** — `/payroc-solution-design:sd-new <partner>`; answer the interview; open the HTML in Chrome/Edge, enable

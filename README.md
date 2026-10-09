@@ -26,7 +26,7 @@ This repo is a **Claude Code plugin marketplace** containing one plugin, `payroc
    From a local checkout: `/plugin marketplace add ./payroc-solution-design` (path to this folder).
 
 > **Organization policy:** some organizations restrict which plugin marketplaces can be added. If `/plugin marketplace add` is blocked, ask your
-> admin to allow this source and point them to [docs/SECURITY.md](docs/SECURITY.md) (what the plugin runs, what it fetches, and that it stores no credentials).
+> admin to allow this source and point them to [docs/security_payroc.md](docs/security_payroc.md) (what the plugin runs, what it fetches, and that it stores no credentials).
 
 ## Use
 
@@ -61,3 +61,8 @@ python3 create-solution-design/scripts/check-skills.py      # skills freshness v
 Release: update `CHANGELOG.md`, bump the version in `payroc-solution-design/.claude-plugin/plugin.json` and
 `.claude-plugin/marketplace.json`, commit on a feature branch and open a PR; tag after merge. Installed plugins
 are read-only, so scripts never write next to themselves.
+
+## License
+
+The original content in this repo is released under the [MIT License](LICENSE). The Worldnet documentation snapshot under
+`payroc-solution-design/skills/worldnet-reference/references/` is third-party material and is not covered by that license.

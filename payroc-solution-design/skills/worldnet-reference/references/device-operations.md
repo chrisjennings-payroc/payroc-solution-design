@@ -22,6 +22,14 @@
 | **Device families and platforms** | IDTech, Ingenico, PAX (app runs on the device), BBPOS (mPOS). Model tables in `sdks.md`. | `references/sdks.md` |
 | **EBT / PIN** | EBT on PAX needs an EBT PIN key slot; EBT on FiServ and TSYS processors. | `pages/gochip/pos/devices/pax/ebt.md`, `references/sdks.md` |
 
+## Confirmed production key injection (Payroc, 2026-10-09)
+
+- **PAX:** remote key injection (RKI).
+- **Ingenico, IDTech, BBPOS:** keys are injected by a Payroc-approved **KIF** (key injection facility) — production units.
+- **Ingenico SDK `loadRKI` / `loadFirmware` / `loadConfiguration` / `loadAsset`:** available in the SDK; `loadRKI` is run by the developer on
+  **dev/test units only** — never in a production flow. (Details of the guides: `sdk-integration-guides.md`.)
+- **PAX app distribution:** PAXstore.
+
 ## Payroc side (from the Payroc skills, for contrast)
 
 - **Payroc Cloud:** physical device configuration, pairing and binding a real serial number are **out of scope**
@@ -35,9 +43,9 @@
 - Who owns the base derivation keys / key hierarchy (Payroc, processor, ISV, device vendor), and whether PIN and data
   keys use separate hierarchies for each device model. (Key structure is TDES DUKPT — confirmed; P2PE is not
   supported — confirmed.)
-- **Remote key injection (RKI) vs direct injection** per device model; who injects, where, turnaround; re-injection
+- Injection logistics beyond the confirmed method (PAX RKI; Ingenico/IDTech/BBPOS approved KIF): who injects, where, turnaround; re-injection
   after RMA/swap; key rotation, expiry and destruction. (Same process for Worldnet and Payroc — confirmed.)
-- How keys for IDTech, Ingenico and BBPOS devices are provided and registered (only PAX slots and the generic KSN
+- How device KSNs for IDTech, Ingenico and BBPOS are registered to a Terminal ID (only PAX slots and the generic KSN
   step are documented).
 - How test and production key sets are separated and what evidence certification needs.
 - PCI PIN scope (given no validated P2PE), PTS versions and end-of-life, EMV L2/L3 certification process.

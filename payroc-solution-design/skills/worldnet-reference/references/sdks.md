@@ -25,6 +25,10 @@ differ: the application with the GoChip integration **runs on the device itself*
 | **SDK** | Native libraries; listeners/callbacks (`CoreAPIListener`, `onSaleResponse`, `onSignatureRequired`...) | Java (>= 8), Android (SDK needs Java 17; min Android 5), iOS (min 9.1), Ubuntu (min 16.04), .NET C# (min 4.5.1) (`troubleshooting.md` FAQ) |
 | **Modes** | `CoreMode.TEST` / live; `payconfig.xml` holds gateway URLs + `apiKey` + `integrationId` | `pages/gochip/support/authentication.md` |
 
+> **Newer baseline (Payroc SDK guides, SDK 1.6.89, 2026-10-09):** Android minSdk 22 / Java 17; iOS 12+ / Xcode 14+; iOS supports **BBPOS only**;
+> Windows (.NET), Java and Ubuntu/Linux support **IDTech and Ingenico only**; PAX is Android-only. Native SDK scoping (platforms, device
+> prerequisites, mandatory logging, certification checklist) is in `sdk-integration-guides.md`. The wiki minimums below (Android 5, iOS 9.1) are older.
+
 ## 2. Supported devices (tables in snapshot)
 
 | Family | Models (from snapshot) | Platforms | Page |
@@ -107,7 +111,7 @@ Credentials differ by plugin (Magento: terminal ID + shared secret; Shopify: ter
 - For new builds prefer REST (`rest-api.md`) or HPP (`hosted-pages.md`); position XML as legacy unless the partner already uses it.
 
 ## Not documented in snapshot (open questions)
-- Current SDK/Websockets download locations and a complete release history after 1.6.53.
+- Current SDK/Websockets download locations (the Payroc guides pin SDK 1.6.89, which the public wiki does not describe).
 - Whether Websockets/SDK token flows work against the REST API (wiki points to XML).
-- Certification status per device/acquirer/region; EMV L3 process.
+- Certification status per device/acquirer/region. SDK certification sign-off is owned by Payroc (confirmed); the EMV L2/L3 process details are not documented here.
 - Supported card-present features on the Merchant REST API device instructions vs gochip (the REST spec has device instruction endpoints; relationship to gochip is not explained).

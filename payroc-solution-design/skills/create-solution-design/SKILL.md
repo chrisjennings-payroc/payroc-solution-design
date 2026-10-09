@@ -144,7 +144,7 @@ template; only diverge from what's there if the referenced skill indicates it ha
 | 8.4 Recurring Billing & Tokenization | `set-up-a-payment-plan`, `manage-subscriptions`, `save-a-payment-method`, `create-single-use-token` | Use `set-up-a-payment-plan`/`manage-subscriptions` for the billing-cycle decisions, `save-a-payment-method`/`create-single-use-token` for the tokenize-vs-single-use decision |
 | 8.5 Card & Bank Verification | `verify-bank-account`, `look-up-card-details`, `check-ebt-balance` | |
 | 8.6 Equipment Ordering & Terminal Provisioning | `order-a-terminal` | |
-| 8.2f Worldnet SDKs, POS & plugins; and the Worldnet block of any section set to Worldnet/Both | `worldnet-reference` (read its SKILL.md, then the reference file it points to) | Worldnet content is never written from memory; state the snapshot date; carry every "not documented in snapshot" item into Section 4 as an open question. Worldnet Boarding API is out of scope (flag only) |
+| 8.2f Worldnet SDKs, POS & plugins; and the Worldnet block of any section set to Worldnet/Both | `worldnet-reference` (read its SKILL.md, then the reference file it points to; for native SDK scoping also `references/sdk-integration-guides.md`) | Worldnet content is never written from memory; state the snapshot date; carry every "not documented in snapshot" item into Section 4 as an open question. Worldnet Boarding API is out of scope (flag only) |
 | 8.6b Card-present operational requirements | *(none — undocumented)*; for Worldnet devices read `worldnet-reference/references/device-operations.md` | These are **open questions, never answers**: key model (PIN keys vs data keys, DUKPT), key injection (remote key injection vs direct), who owns/injects keys, hardware procurement and staging, terminal-estate/TMS management, connectivity, lifecycle, certification, support. The Payroc Cloud skill treats device configuration and pairing as out of scope and no Payroc skill covers keys or TMS. Ask the SE who the Payroc owner is for each row (Hardware / Implementations / Product), record it, and carry unanswered rows into Section 4. Never invent how Payroc injects keys. **Confirmed by Payroc (pre-filled in the template; change only with Product's agreement):** Payroc and Worldnet do NOT support PCI DSS-validated P2PE; the primary key structure is TDES DUKPT; key injection is the same for Worldnet and Payroc (same gateway, different APIs); device KSNs are shared with the Payroc SE on the project (not sent to a Worldnet contact) |
 | 8.7 Gateway / Self-Care Portal Config | *(no dedicated skill)* — WebFetch docs.payroc.com | Portal-configured, not API-driven — confirm current feature list, not endpoints. Only remaining section without a skill; unlikely one will exist since there's no API to guide developers through here |
 | 8.8 Funding | `set-up-a-funding-recipient`, `send-funds-to-a-merchant`, `view-funding-activity` | Setup vs. disbursement vs. balance/activity reporting are three distinct skills — consult whichever matches what the partner actually needs |
@@ -166,6 +166,27 @@ before certification.
 All skills referenced in this table come from `https://github.com/payroc/skills` (main), which is the
 source of truth. Step 0 verifies the local copies against it each run; the section-to-skill mapping
 is also kept machine-readable in `skill-map.json` — keep the two in sync.
+
+### Worldnet native SDK (8.2f) — extra questions
+
+When 8.2f is in scope, read `worldnet-reference/references/sdk-integration-guides.md` (newer than `sdks.md`) and ask:
+
+- **Platforms:** Android, iOS, Windows (.NET), Java, Ubuntu/Linux. iOS = **BBPOS only**; PAX = Android only (PAXstore);
+  Windows, Java and Ubuntu = IDTech and Ingenico only. If the partner asks for something outside that matrix, record it as a
+  question for Product — do not promise it. Windows/Java/Ubuntu build and per-device details are not documented here: leave
+  those 8.2f fields unresolved, never invent them.
+- **Devices, models and connection types** per platform; tick the matching prerequisites (PAXstore/TermLink/config ZIP,
+  Ingenico vendor IDs/firmware/config, IDTech NEO2 file, BBPOS permissions).
+- **Features** that change the test plan: Quick Chip vs Standard, surcharge, tips, polling, delayed auth, offline, EBT, tokens,
+  loyalty, keyed entry.
+- **Credentials and provisioning:** where the Terminal ID / API key / Integration ID will live (never hard-coded in a distributed
+  app) and how each device is registered to its Terminal ID.
+- **Logging (mandatory):** who hosts the log-upload endpoint and which remote trigger is used. This is partner build scope.
+- **Pinned SDK version** (assumption only — no upgrade/support policy is written into the SD).
+- Pre-filled and confirmed by Payroc: production keys by RKI (PAX) or an approved KIF (Ingenico, IDTech, BBPOS); the Ingenico
+  `loadRKI` call is for dev/test units only; PAX apps are distributed via PAXstore; Payroc owns SDK certification sign-off.
+- The Payroc SDK guides are **confidential** and contain key identifiers and sample private keys: never copy them, or any key
+  material, into an SD, the `.md` twin or this repository.
 
 ## Step 4 — Risk & planning capture
 

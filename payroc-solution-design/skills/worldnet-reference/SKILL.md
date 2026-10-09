@@ -56,6 +56,7 @@ scope**, do not describe any boarding endpoints or fields, and raise it as an op
 | Sandbox, test cards, simulated responses, validation / go-live checklist | `references/test-data-and-uat.md` |
 | "Payroc workflow X - what is the Worldnet equivalent?" | `references/payroc-vs-worldnet.md` |
 | Card-present device setup, DUKPT/KSN, key injection, firmware/config loading | `references/device-operations.md` |
+| Native SDK scoping: platforms (Android, iOS, Windows, Java, Ubuntu), device matrix, prerequisites, mandatory logging, certification checklist (SDK 1.6.89; internal Payroc guides, derived summary) | `references/sdk-integration-guides.md` (newer than `sdks.md`; the guides themselves are confidential — never copy them or their key material) |
 | Anything not summarised above | search `references/pages/` (see layout below) |
 
 Snapshot layout: `references/pages/hosted_pages/` (HPP), `references/pages/selfcare/` (API specification,
@@ -85,7 +86,7 @@ API-first builds; gochip for card-present.
    **"not documented in snapshot"** and list it as an open question (or "confirm with Product").
 2. **Cite the snapshot file** for each fact (for example `references/pages/hosted_pages/hpp_payment_features.md`)
    or the spec operation (`operationId` / path in `references/merchant-api/openapi_worldnet.yaml`).
-3. **No secrets.** Never write API keys, JWTs, terminal secrets, Shopify passwords, DUKPT test keys or
+3. **No secrets.** Never write API keys, JWTs, terminal secrets, Shopify passwords, DUKPT test keys, key components/KCVs, sample private keys from the SDK guides or
    credentials into a Solution Design or any file. The snapshot itself contains published sandbox
    credentials and sample secrets; do **not** copy them. Describe only that a key/secret is required and
    the structure, using placeholders such as `<API_KEY>`, `<JWT_TOKEN>`, `<TERMINAL_SECRET>`.

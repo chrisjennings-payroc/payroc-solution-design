@@ -8,7 +8,8 @@ Checks (stdlib only, no network):
   - HTML <-> Markdown twin in sync (same section ids; unresolved count within the .md front matter)
   - provenance recorded (Payroc skills freshness; Worldnet snapshot when any workflow uses Worldnet)
   - Worldnet consistency (Worldnet/Both sections need the Worldnet snapshot recorded; boarding flag vs blocker row)
-  - credential-shaped values in EITHER file (API keys, tokens, JWTs, secrets, private keys) — must never appear
+  - credential-shaped values in EITHER file (API keys, tokens, JWTs, secrets, private keys, key components / KSI / KCV) — must never appear
+  - Worldnet SDK (8.2f) in scope: unresolved SDK fields, and 8.6b / Section 9 still present
 
 Exit code: 0 = no errors (warnings allowed), 1 = errors found.
 """
@@ -20,6 +21,8 @@ SECRET_PATTERNS = [
     ("Authorization header value", re.compile(r"(?i)authorization\s*:\s*(?:basic|bearer)\s+(?!<|\{|your|xxx)[A-Za-z0-9+/=._-]{16,}")),
     ("private key block", re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----")),
     ("hex secret (40+ chars)", re.compile(r"(?<![\w/.-])[0-9a-fA-F]{40,}(?![\w/-])")),
+    ("key identifier / KCV value", re.compile(r"(?i)\b(?:KSI|KCV)\b\W{0,4}[0-9A-F]{6,}")),
+    ("hex key component (32 chars)", re.compile(r"(?<![\w/.-])[0-9a-fA-F]{32}(?![\w/-])")),
     ("key/secret/token assignment", re.compile(r"(?i)\b(api[_ -]?key|secret|password|passwd|token|client[_ -]?secret)\b[\"']?\s*[:=]\s*[\"']?(?!<|\{|your|xxx|placeholder|example|required|string|\[)[A-Za-z0-9+/_=-]{16,}")),
     ("long mixed-case token", re.compile(r"(?<![/\w.=+-])(?=[A-Za-z0-9+]*\d)(?=[A-Za-z0-9+]*[a-z])(?=[A-Za-z0-9+]*[A-Z])[A-Za-z0-9+]{40,}(?![\w/=+-])")),
 ]
@@ -37,6 +40,7 @@ class Scan(HTMLParser):
         self.section_ids = []
         self.platforms = {}
         self.unresolved = 0
+        self.unresolved_by = {}
         self.token_left = 0
         self.prov = None
         self._in_prov = False
@@ -71,6 +75,8 @@ class Scan(HTMLParser):
             self.auto_blocker_row = True
         if "fill" in cls and "filled" not in cls and inmain and not trash:
             self.unresolved += 1
+            if self._cur_section:
+                self.unresolved_by[self._cur_section] = self.unresolved_by.get(self._cur_section, 0) + 1
 
     def handle_endtag(self, tag):
         while self.stack:
@@ -171,6 +177,16 @@ def main():
         f.append(("warn", "A workflow runs on Worldnet but the Worldnet docs snapshot date is not recorded in provenance."))
     if sc.wn_flag_checked and not sc.auto_blocker_row:
         f.append(("warn", "Worldnet Boarding API flag is ticked but the open item is missing from Section 4."))
+
+    # 3b. Worldnet native SDK / device scope (8.2f)
+    if "worldnet-sdks" in sc.section_ids and sc.in_scope.get("worldnet-sdks"):
+        n = sc.unresolved_by.get("worldnet-sdks", 0)
+        if n:
+            f.append(("warn", "8.2f (Worldnet SDK) is in scope but has %d unresolved field(s) — pinned SDK version, platform details and the log-endpoint owner must be answered or recorded as open items." % n))
+        if "card-present-ops" not in sc.section_ids:
+            f.append(("warn", "8.2f (Worldnet SDK) is in scope but 8.6b Card-present operational requirements was removed — key injection, PAXstore and device registration are scope items."))
+        if "golive" not in sc.section_ids:
+            f.append(("warn", "8.2f (Worldnet SDK) is in scope but Section 9 (Go-Live / certification) was removed."))
 
     # 4. secrets in both files
     scan_secrets(os.path.basename(a.html), html, f)

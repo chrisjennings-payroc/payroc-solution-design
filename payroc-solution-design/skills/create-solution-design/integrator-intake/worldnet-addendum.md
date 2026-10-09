@@ -31,6 +31,11 @@ the last box so it is flagged.
 - Channels (card-not-present, card-present, both): 
 - Countries and currencies: 
 - Devices (IDTech, Ingenico, PAX, BBPOS, other): 
+- Native SDK platforms (Android, iOS, Windows, Java, Ubuntu/Linux — iOS is BBPOS only; Windows, Java and Ubuntu are IDTech and Ingenico only): 
+- Device models and connection types per platform (for example Bluetooth, USB, AIDL, TCP): 
+- Features needed (surcharge, tips, polling, delayed auth, offline mode, EBT, secure tokens, loyalty, keyed entry): 
+- Where SDK logs will be stored and which remote trigger will request them (the partner hosts the log endpoint; logging is mandatory): 
+- Where terminal credentials will be held in your app (do not put the values here): 
 - Existing Worldnet integration (XML, HPP, REST, SDK) and version: 
 - Do you also use the Payroc platform for any of these? (list): 
 - Estimated monthly volume: 

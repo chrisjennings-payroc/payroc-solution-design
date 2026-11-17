@@ -26,7 +26,7 @@ The sibling skill `worldnet-reference` holds the Worldnet documentation snapshot
 ## Quick start (Claude Code)
 
 1. Install the Payroc skills (once): `npx skills add payroc/skills --agent claude-code`
-2. Ask Claude: **"Build the Solution Design for <partner>"** (or `/sd-new` when installed as the plugin).
+2. Ask Claude: **"Build the Solution Design for <partner>"** (or `/sd-new`).
 3. Claude checks that the skills are current, optionally imports the integrator's plan, interviews you,
    and writes `<Partner>-Solution-Design.html` and `.md`.
 4. Open the HTML in **Chrome or Edge**, click **Enable autosave to this file**, then **Enable Markdown

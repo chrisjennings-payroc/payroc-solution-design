@@ -1,14 +1,16 @@
 ---
+name: sd-review
 description: Pre-share review of a Solution Design (unresolved fields, HTML/MD sync, skills freshness, endpoint accuracy, secrets)
 argument-hint: <path to Partner-Solution-Design.html>
+disable-model-invocation: true
 allowed-tools: Bash(python3:*), Read, Glob, Grep, Skill
 ---
 
 Review the Solution Design at: $ARGUMENTS
 
-1. Run `python3 "${CLAUDE_PLUGIN_ROOT}/skills/create-solution-design/scripts/review-sd.py" <file.html>`
+1. Run `python3 "${CLAUDE_SKILL_DIR}/../create-solution-design/scripts/review-sd.py" <file.html>`
    (it reads the `.md` twin next to it) and report every ERROR and WARN.
-2. Run `python3 "${CLAUDE_PLUGIN_ROOT}/skills/create-solution-design/scripts/check-skills.py" --json`.
+2. Run `python3 "${CLAUDE_SKILL_DIR}/../create-solution-design/scripts/check-skills.py" --json`.
    If skills are stale or missing, say so and tell the SE to run `npx skills add payroc/skills --agent claude-code`.
 3. Endpoint accuracy: for each in-scope **Payroc** workflow, compare the SD's endpoint tables and
    "common pitfalls" with the matching skill listed in `skill-map.json` (read that skill's SKILL.md and its

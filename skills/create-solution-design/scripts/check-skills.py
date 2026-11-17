@@ -135,7 +135,7 @@ def main():
     report["result"] = "current" if ok else "stale"
 
     if a.record:
-        # Best effort: an installed plugin directory is read-only, so a failure here is not an error —
+        # Best effort: the skill directory may be read-only, so a failure here is not an error —
         # the same data is in the --json output, which is what gets stamped into the SD's provenance.
         try:
             json.dump({k: report[k] for k in ("commit", "commitDate", "checkedAt", "result")} |

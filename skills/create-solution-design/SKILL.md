@@ -25,7 +25,7 @@ description: >-
   add/remove-row/section editing, plus an auto-saved Markdown twin that any other AI tool can read. Do NOT use this skill to actually call
   Payroc APIs or board a merchant — it only produces the internal-facing scoping document.
 metadata:
-  version: "0.2.0"
+  version: "0.3.0"
   category: sales-engineering
   status: draft
 ---
@@ -54,8 +54,8 @@ single upstream. Before interviewing, run:
 python3 <skill-folder>/scripts/check-skills.py
 ```
 
-`<skill-folder>` (= `${CLAUDE_SKILL_DIR}` when the skill is installed as a plugin) is the folder this SKILL.md was loaded from (the "Base directory" shown when the skill
-loads — a project `.claude/skills/create-solution-design`, a user-level skill, or a plugin folder).
+`<skill-folder>` (= `${CLAUDE_SKILL_DIR}`) is the folder this SKILL.md was loaded from (the "Base directory" shown when the skill
+loads — a project `.claude/skills/create-solution-design`, a user-level skill).
 The script finds its own `skill-map.json` and auto-detects where the Payroc skills are installed
 (next to this skill, `./.claude/skills`, `~/.claude/skills` or `~/.agents/skills`); pass
 `--skills-dir DIR` to override.
@@ -65,7 +65,7 @@ with upstream `main`. No credentials are needed or used.
 
 - **Exit 0 (current):** continue. Re-run with `--json` once the SD is assembled and stamp `commit`,
   `checkedAt` and `result` into the SD's provenance (Step 6). (`--record` additionally writes
-  `skills-upstream.json` next to the script, but a plugin install is read-only — rely on `--json`.)
+  `skills-upstream.json` next to the script, but if that file cannot be written, rely on `--json`.)
 - **Exit 1 (stale/missing):** stop and show the SE the list. Ask them to run
   `npx skills add payroc/skills --agent claude-code` (never update silently), then re-run the check.
   If they choose to continue anyway, record "stale — SE chose to proceed" in the SD.

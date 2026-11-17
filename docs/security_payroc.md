@@ -1,10 +1,10 @@
-# Security & data-handling notes (for plugin review)
+# Security & data-handling notes (for skill review)
 
-Audience: whoever approves Claude Code plugin sources. Audited 2026-10-06 against `main` at v0.2.0 by reading every script and
+Audience: whoever approves Claude Code skills. Audited 2026-10-06 against `main` at v0.2.0 by reading every script and
 command; re-check on each release.
 
-## What the plugin is
-Markdown instructions (skills and slash commands), four small Python 3 scripts that use only the standard library, one HTML template,
+## What the skills are
+Markdown instructions (skills, including four command skills invoked as slash commands), four small Python 3 scripts that use only the standard library, one HTML template,
 and a static copy of public Worldnet developer documentation. It has **no hooks, no MCP servers, no background processes, no installers,
 no third-party dependencies, no telemetry**.
 
@@ -23,7 +23,7 @@ Separately, `/sd-new` and the skill's Step 3 can use Claude's `WebFetch`/`WebSea
 - Scripts only read the files you point them at. The generated SD (`.html`, `.md`) is written by Claude into the folder the SE chooses, or
   saved by the browser from the template's autosave buttons (File System Access API, user-picked file).
 - `refresh-worldnet.py` (maintainers) writes only inside the skill's `references/` folder.
-- `check-skills.py --record` makes a best-effort write of `skills-upstream.json` next to itself; it is optional and ignored if the install is read-only.
+- `check-skills.py --record` makes a best-effort write of `skills-upstream.json` next to itself; it is optional and ignored if the skill folder is read-only.
 
 ## Credentials
 - None are stored, required or requested. The repo and snapshot contain no API keys, tokens or secrets; credential-shaped sample values in the
@@ -31,10 +31,10 @@ Separately, `/sd-new` and the skill's Step 3 can use Claude's `WebFetch`/`WebSea
 - The SD template and skill instructions forbid keys in an SD (placeholders like `<API_KEY>` only), and `review-sd.py` scans the HTML and
   Markdown twin for credential-shaped values and fails the review if it finds any.
 
-## Tool permissions requested by the commands
+## Tool permissions requested by the command skills
 | Command | `allowed-tools` | Reviewer note |
 |---|---|---|
-| `/sd-new` | `Bash(python3:*)`, Read, Write, Edit, Glob, Grep, Skill, WebFetch | `Bash(python3:*)` permits any `python3` command, not just the bundled scripts; it could be narrowed to the plugin's script paths if policy requires. |
+| `/sd-new` | `Bash(python3:*)`, Read, Write, Edit, Glob, Grep, Skill, WebFetch | `Bash(python3:*)` permits any `python3` command, not just the bundled scripts; it could be narrowed to the bundled script paths if policy requires. |
 | `/sd-import` | `Bash(python3:*)`, Read, Write, Edit, Glob, Grep, Skill | as above |
 | `/sd-review` | `Bash(python3:*)`, Read, Glob, Grep, Skill | as above; read-only intent (edits only with SE confirmation) |
 | `/sd-refresh-worldnet` | `Bash(python3:*)`, Read | reports snapshot age only |

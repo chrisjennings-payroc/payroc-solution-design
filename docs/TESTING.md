@@ -7,18 +7,18 @@
   says "not verified", that is expected when offline or rate-limited).
 
 ## Install
-See the README. Confirm `/payroc-solution-design:` commands appear. If your organization restricts plugin marketplaces and the add is blocked,
-stop and ask your admin to allow the source (see [SECURITY.md](security_payroc.md)) — do not try to work around the policy.
+See the README. Confirm the `/sd-new`, `/sd-import`, `/sd-review` and `/sd-refresh-worldnet` commands appear after restarting Claude Code. If your organization
+restricts user-level skills, ask your admin (see [SECURITY.md](security_payroc.md)) — do not try to work around the policy.
 
 ## Scenarios (try at least three; use a past or fictional partner — no real partner data in feedback)
-1. **New SD from scratch** — `/payroc-solution-design:sd-new <partner>`; answer the interview; open the HTML in Chrome/Edge, enable
+1. **New SD from scratch** — `/sd-new <partner>`; answer the interview; open the HTML in Chrome/Edge, enable
    autosave and Markdown autosave; confirm the `.md` updates within ~2 s of an edit.
-2. **Import a plan** — `/payroc-solution-design:sd-import <integration-plan.md>`; check the proposed sections, ordered API calls,
+2. **Import a plan** — `/sd-import <integration-plan.md>`; check the proposed sections, ordered API calls,
    manual steps and warnings match the plan.
 3. **Worldnet partner** — tick Worldnet/Both on a workflow; check the Worldnet block, Appendix A and provenance; confirm the Worldnet
    Boarding API appears only as "not supported" with the flag in 8.1.
 4. **Card-present partner** — Cloud and/or 8.2f; check 8.6b appears, pre-filled rows look right, rows can be edited or removed.
-5. **Review** — `/payroc-solution-design:sd-review <file.html>`; it should flag unresolved fields, twin sync and any credential-shaped value
+5. **Review** — `/sd-review <file.html>`; it should flag unresolved fields, twin sync and any credential-shaped value
    (try pasting a fake key to see it caught — then remove it).
 6. **No-Claude path** — open `template.html` directly; edit, autosave/download, then run `scripts/review-sd.py`.
 7. **Safari/Firefox** — use "Download updated copy (HTML + .md)"; confirm both files download and reopen correctly.

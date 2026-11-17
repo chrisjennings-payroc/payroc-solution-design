@@ -7,7 +7,7 @@ Please **do not open a public issue** for security problems. Use GitHub's privat
 
 ## Scope
 
-This repo contains Claude Code plugin instructions, small standard-library Python scripts, and an HTML template. It stores no credentials.
-For what the plugin runs, what it fetches, and its data handling, see [docs/security_payroc.md](docs/security_payroc.md).
+This repo contains Claude Code skill instructions, small standard-library Python scripts, and an HTML template. It stores no credentials.
+For what the skills run, what it fetches, and its data handling, see [docs/security_payroc.md](docs/security_payroc.md).
 
 Never include API keys, tokens, or customer/partner data in an issue or pull request.
